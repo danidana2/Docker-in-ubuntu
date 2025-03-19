@@ -1,19 +1,33 @@
 # Docker-in-ubuntu
 
-## 🚦목차
+## 🚦 목차
 <a href="#개요">1. 개요</a><br>
 <a href="#프로젝트-설명">2. 프로젝트 설명</a><br>
 <a href="#팀원">3. 팀원</a><br>
 <a href="#활용-기술">4. 활용 기술</a><br>
 <a href="#구현">5. 구현</a><br>
 <a href="#트러블-슈팅">6. 트러블 슈팅</a><br>
-<a href="#회고">7. 회고</a><br>
 
-## 🖥️**개요**
- 
-## 📒**프로젝트 설명**
+## 🖥️ **개요**
+이 프로젝트는 Spring Boot 애플리케이션(JAR 파일)을 활용하여, **최적화**된 Dockerfile을 통해 Docker 이미지를 생성하고 Docker Hub에 업로드하는 과정을 다룹니다.
+Dockerfile에 적용한 **최적화** 기법(경량 JRE 기반 이미지 사용, 불필요한 파일 제거 등)을 통해 이미지 크기를 최소화하고 빌드 시간을 단축하여 배포 및 실행 효율성을 극대화하며, 이를 다양한 환경에서 손쉽게 다운로드하여 사용할 수 있도록 합니다.
 
-## 👊**팀원**
+## 📒 **프로젝트 설명**
+이미 빌드된 Spring Boot 애플리케이션(JAR 파일)을 기반으로, 최적화된 Dockerfile을 사용하여 Docker 이미지를 빌드하는 과정을 중심으로 진행됩니다.
+이 과정에서 경량 JRE 기반 Alpine 이미지를 채택하고 불필요한 파일 제거 등의 최적화 기법을 적용함으로써, **이미지 크기를 최소화**하고 **빌드 시간을 단축**하는 동시에, Docker Hub에 업로드하여 다양한 환경에서 손쉽게 다운로드 및 배포할 수 있도록 구성되어 있습니다.
+
+### 프로젝트 주요 기능
+- **JAR 파일을 Docker 이미지로 전환** <br> 
+기존에 빌드된 Spring Boot JAR 파일을 활용하여, 애플리케이션을 Docker 컨테이너 환경에서 실행할 수 있도록 이미지로 변환합니다.
+- **이미지 최적화** <br> 
+최적화된 Dockerfile을 통해 경량 JRE 기반 Alpine 이미지를 사용하고, 불필요한 파일을 제거하는 등의 기법을 적용하여 Docker 이미지의 크기를 최소화합니다.
+(추가적으로, multi-stage build 기법 등을 활용하면 더욱 효과적인 최적화가 가능합니다.)
+- **Docker Hub 업로드 및 배포** <br> 
+최적화된 Docker 이미지를 Docker Hub에 업로드하여, 다른 환경에서도 손쉽게 이미지 pull 및 컨테이너 실행이 가능하도록 지원합니다.
+- **다운로드 후 실행** <br> 
+Docker Hub에 등록된 이미지를 활용하여, 간단한 명령어로 컨테이너를 실행하고 애플리케이션을 배포할 수 있습니다.
+
+## 🤝 **팀원**
 <table>
   <tbody>
     <tr>
@@ -34,15 +48,18 @@
   </tbody>
 </table>
 
-## 🔍**활용 기술**
-<table style="border-collapse: collapse;">
-<tr>
-    <td><img src="https://techstack-generator.vercel.app/docker-icon.svg" alt="Docker" width="65" height="65" /></td>
-</tr>
-</table>
+## 🛠 **활용 기술**
+| 분류      | 기술   | 
+|:-      |:-     |
+| **Container**      | ![Docker Badge](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white&style=for-the-badge)      |
+| **Registry**       | ![Docker Hub Badge](https://img.shields.io/badge/Docker_Hub-2496ED?logo=docker&logoColor=white&style=for-the-badge)    | 
+| **OS**             | ![Ubuntu Badge](https://img.shields.io/badge/Ubuntu-E95420?logo=ubuntu&logoColor=white&style=for-the-badge)    | 
+| **Communication**  | ![Slack Badge](https://img.shields.io/badge/Slack-4A154B?logo=slack&logoColor=white&style=for-the-badge)     | 
+| **Virtualization** | ![VirtualBox Badge](https://img.shields.io/badge/VirtualBox-183A61?logo=virtualbox&logoColor=white&style=for-the-badge) ![VMware Badge](https://img.shields.io/badge/VMware-607078?logo=vmware&logoColor=white&style=for-the-badge) | 
 
-## **구현**
-### Dockerfile
+## ⚙️ **구현**
+
+### 1. 최적화된 Dockerfile 구성 및 선택 배경
 ```bash
 # 1. 가벼운 JRE 기반 이미지 사용 (최소한의 실행 환경)
 FROM eclipse-temurin:17-jre-alpine
@@ -59,35 +76,52 @@ EXPOSE 8081
 #4. 작동
 ENTRYPOINT ["java", "-jar", "springapp.jar"]
 ```
-### 애플리케이션 파일 준비
+- **JRE 선택** <br>
+Docker 이미지 크기를 최소화하기 위해, Java Development Kit (JDK) 대신 Java Runtime Environment (JRE)를 사용했습니다. <br>
+JRE는 실행에 필요한 최소한의 라이브러리만 포함하므로, 불필요한 개발 도구들이 제거되어 이미지가 훨씬 가볍습니다. <br>
+
+- **eclipse-temurin:17-jre-alpine 버전 선택** <br>
+Alpine Linux 기반 이미지는 기본적으로 매우 경량화되어 있어, 이미지 빌드 및 배포 시 효율적입니다. <br>
+17 버전은 최신 LTS(Long Term Support) 버전으로 안정성과 장기 지원 측면에서 우수하며, 기존 애플리케이션과의 호환성이 보장됩니다. <br> <br>
+
+**최적의 베이스 이미지 선택을 통해 경량화 및 성능 향상을 도모하였습니다.** <br>
+**추후 multi-stage build 등의 기법을 추가하면, 빌드 시 불필요한 파일을 더욱 효과적으로 제거할 수 있습니다.**
+<br>
+
+> **이미지 최적화의 이점** <br>
+파일 크기 최소화로 인해 네트워크 전송 및 저장 공간 사용량이 줄어듭니다.
+빌드 시간이 단축되며, 배포 시 컨테이너 실행이 신속해집니다.
+경량화된 이미지는 보안 측면에서도 유리하며, 불필요한 구성요소가 제거되어 공격 표면이 줄어듭니다.
+
+### 2. 애플리케이션 파일 준비
 Spring 애플리케이션을 Docker로 배포하기 위해 필요한 파일들을 준비합니다.
 ```bash
 ubuntu@myserver01:~/springImg$ ls
 Dockerfile  springapp.jar
 ```
-### Docker 이미지 빌드
+### 3. Docker 이미지 빌드
 Spring 애플리케이션을 포함한 Docker 이미지를 생성합니다.
 ```bash
 ubuntu@myserver01:~/springImg$ docker build -t springapp .
 ```
-### 생성된 Docker 이미지 확인
+### 4. 생성된 Docker 이미지 확인
 ```bash
 ubuntu@myserver01:~/springImg$ docker images
 REPOSITORY            TAG       IMAGE ID       CREATED          SIZE
 springapp             latest    a1a78cf3c43f   2 minutes ago    205MB
 ```
-### 태그 변경 후 Docker Hub에 푸시 준비
+### 5. 태그 변경 후 Docker Hub에 푸시 준비
 ```bash
 ubuntu@myserver01:~/springImg$ docker tag springapp:latest danidanacdy/springapp:1.0
 ```
-### 태그 변경 확인
+### 6. 태그 변경 확인
 ```bash
 ubuntu@myserver01:~/springImg$ docker images
 REPOSITORY              TAG       IMAGE ID       CREATED          SIZE
 danidanacdy/springapp   1.0       a1a78cf3c43f   7 minutes ago    205MB
 springapp               latest    a1a78cf3c43f   7 minutes ago    205MB
 ```
-### Docker Hub에 푸시
+### 7. Docker Hub에 푸시
 ```bash
 ubuntu@myserver01:~/springImg$ docker push danidanacdy/springapp:1.0
 The push refers to repository [docker.io/danidanacdy/springapp]
@@ -103,7 +137,7 @@ b1bdb6e103f3: Mounted from library/eclipse-temurin
 ![alt text](images/dockerhub1.png)
 ![alt text](images/dockerhub2.png)
 
-### 다른 서버에서 Docker Hub에 올린 이미지 가져오기
+### 8. 다른 서버에서 Docker Hub에 올린 이미지 가져오기
 ```bash
 ubuntu@myserver01:~$ docker pull danidanacdy/springapp:1.0
 1.0: Pulling from danidanacdy/springapp
@@ -118,25 +152,25 @@ Digest: sha256:40cc7f8a084e1d2afa4ae360dcf7e7b48494e581a7e26a323443d8c2f009dac1
 Status: Downloaded newer image for danidanacdy/springapp:1.0
 docker.io/danidanacdy/springapp:1.0
 ```
-### 다운로드된 이미지 확인
+### 9. 다운로드된 이미지 확인
 ```bash
 ubuntu@myserver01:~$ docker images
 REPOSITORY              TAG       IMAGE ID       CREATED          SIZE
 danidanacdy/springapp   1.0       a1a78cf3c43f   27 minutes ago   205MB
 ```
-### 컨테이너 실행
+### 10. 컨테이너 실행
 ```bash
 ubuntu@myserver01:~$ docker run -d -p 8081:8081 --name daniSpringApp danidanacdy/springapp:1.0
 66394cecd5bcbb4503cf475d2c37e2f43ac91481aed4c6ee1c61c7a3998efc4e
 ```
-### 실행 중인 컨테이너 확인
+### 11. 실행 중인 컨테이너 확인
 ```bash
 ubuntu@myserver01:~$ docker ps
 CONTAINER ID   IMAGE                       COMMAND                  CREATED         STATUS         PORTS                                         NAMES
 66394cecd5bc   danidanacdy/springapp:1.0   "java -jar springapp…"   6 minutes ago   Up 6 minutes   0.0.0.0:8081->8081/tcp, [::]:8081->8081/tcp   daniSpringApp
 ```
 
-### 다른 사용자 Docker Hub에서 이미지 가져오기
+### 12. 다른 사용자 Docker Hub에서 이미지 가져오기
 ```bash
 ubuntu@myserver01:~$ docker pull woody6624/springapp:1.0
 1.0: Pulling from woody6624/springapp
@@ -151,19 +185,19 @@ Digest: sha256:a60c77cc13e3397d1cd9d68061afcbcfb6aa7ab0295a098dc27a367565553b6c
 Status: Downloaded newer image for woody6624/springapp:1.0
 docker.io/woody6624/springapp:1.0
 ```
-### 다운로드된 이미지 확인
+### 13. 다운로드된 이미지 확인
 ```bash
 ubuntu@myserver01:~$ docker images
 REPOSITORY              TAG       IMAGE ID       CREATED          SIZE
 danidanacdy/springapp   1.0       a1a78cf3c43f   38 minutes ago   205MB
 woody6624/springapp     1.0       70351ec7fa08   2 hours ago      205MB
 ```
-### 컨테이너 실행 (다른 포트 사용)
+### 14. 컨테이너 실행 (다른 포트 사용)
 ```bash
 ubuntu@myserver01:~$ docker run -d -p 8082:8079 --name woodySpringApp woody6624/springapp:1.0
 7faa8fdfccd3adbe00fb043aa79672e3359b25f4bbaf0f755bdca7f5ed8909b5
 ```
-### 실행 중인 컨테이너 확인
+### 15. 실행 중인 컨테이너 확인
 ```bash
 ubuntu@myserver01:~$ docker ps
 CONTAINER ID   IMAGE                       COMMAND                  CREATED          STATUS          PORTS                                                   NAMES
@@ -272,4 +306,4 @@ docker run -p 8090:8079 springapp
 PORTS
 8081/tcp, 0.0.0.0:8090->8079/tcp, [::]:8090->8079/tcp
 ```
-## **회고**
+
